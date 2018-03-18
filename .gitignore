@@ -1,0 +1,11 @@
+.idea
+node_modules
+*.iml
+.env*
+!.env.example
+*.log
+*log.gz
+coverage
+.history
+.vscode
+config/development.js

@@ -1,0 +1,29 @@
+#!/usr/bin/env node
+
+'use strict';
+
+require('../utils/loggers/loggers');
+const { initSIGINTListener } = require('../utils/process-events-listeners');
+const appFactory = require('../app');
+const config = require('config');
+const http = require('http');
+const { onError, onListening } = require('../utils/express-helpers.js');
+const debug = require('debug')('NODE');
+
+(async function bootstrap() {
+  const app = appFactory();
+
+  const server = http.createServer(app);
+  app.set('port', config.get('port'));
+
+  server.on('error', onError(config.get('port')));
+  server.on('listening', onListening(server));
+
+  initSIGINTListener();
+  server.listen(config.get('port'));
+
+  if (process.send) {
+    process.send('ready'); // inform pm2 that the app is ready, see http://pm2.keymetrics.io/docs/usage/signals-clean-restart/#graceful-start
+    debug('Send READY event');
+  }
+}());
